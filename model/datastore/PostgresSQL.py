@@ -1,7 +1,5 @@
 import psycopg2 as psql
-import sys
-import os
-import re
+import sys, os, re
 
 class PostgresSQL():
 	# pseudo private static vars
@@ -32,7 +30,7 @@ class PostgresSQL():
 			print sys.exc_info()[1]
 			return "Error"
 
-	def read(self,query,vals):
+	def read(self, query, vals):
 		try:
 			conn = self.makeConn()
 			cur = conn.cursor()
@@ -41,24 +39,34 @@ class PostgresSQL():
 			conn.close()
 			return rows
 		except:
-			print sys.exc_info()[1]
+			raise
 			return "Error"
 
-	def insert(self,query,vals):
+	def insert(self, query, vals):
 		try:
 			conn = self.makeConn()
 			curr = conn.cursor()
-			print query
-			print vals
 			curr.execute(query,vals)
 			conn.commit()
 			conn.close()
 			return True
 		except:
-			print sys.exc_info()[1]
+			raise
 			return "Error"
 
-	def update(self,query,vals):
+	def insertMany(self, query, vals):
+		try:
+			conn = self.makeConn()
+			curr = conn.cursor()
+			curr.executemany(query, vals)
+			conn.commit()
+			conn.close()
+			return True
+		except:
+			raise
+			return "Error"
+
+	def update(self, query, vals):
 		try:
 			conn = self.makeConn()
 			curr = conn.cursor()
@@ -67,5 +75,5 @@ class PostgresSQL():
 			conn.close()	
 			return True
 		except:
-			print sys.exc_info()[1]
+			raise
 			return "Error"
