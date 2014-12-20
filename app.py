@@ -64,7 +64,7 @@ def registerUser():
 		
 		return render_template('registerUser.html',username = v_username)
 
-@app.route('/login' , methods=['POST'])
+@app.route('/login' , methods=['GET','POST'])
 def login():
 	error = None
 	if request.method =='POST':
