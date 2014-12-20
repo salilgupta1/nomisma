@@ -171,3 +171,6 @@ class AnalyticsController:
 			raise
 			return "Error"
 		
+	# send data for displaying
+	def displayData(self,):
+		pass
