@@ -17,11 +17,11 @@ def index():
 		return render_template('index.html',client_id=os.environ['client_id'])
 
 #### Analytics pages
-@app.route('/dashboard', methods=['GET','POST'])
+@app.route('/dashboard', methods=['GET'])
 def dashboard():
 	return render_template('dashboard.html')
 
-@app.route('/setup', methods=['GET','POST'])
+@app.route('/setup', methods=['GET'])
 def setup():
 	if 'logged_in' in session and session['logged_in'] == True:
 		analytics.setUsername(session['username'])
@@ -64,7 +64,7 @@ def registerUser():
 		
 		return render_template('registerUser.html',username = v_username)
 
-@app.route('/login' , methods=['GET','POST'])
+@app.route('/login' , methods=['POST'])
 def login():
 	error = None
 	if request.method =='POST':
