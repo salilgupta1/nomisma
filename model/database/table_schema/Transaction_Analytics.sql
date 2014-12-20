@@ -3,14 +3,15 @@
 CREATE TABLE IF NOT EXISTS "transaction_analytics"(
 	user_name varchar(64) REFERENCES "user"(v_username)
 		ON DELETE CASCADE,
-	num_payments INT NOT NULL,
-	num_charges INT NOT NULL, 
-	ave_bal NUMERIC NOT NULL, 
-	amt_payments NUMERIC NOT NULL, 
-	amt_charges NUMERIC NOT NULL, 
-	most_paid_friend varchar(64) NOT NULL, 
-	most_charged_friend varchar(64) NOT NULL, 
+	num_trans_inflow INT NOT NULL,
+	num_trans_outflow INT NOT NULL, 
+	inflow Money NOT NULL, 
+	outflow Money NOT NULL, 
+	largest_payment Money NOT NULL,
+	largest_charge Money NOT NULL,
+	ave_trans_size Money NOT NULL,
+	day_of_transactions timestamp NOT NULL,
 	date_pulled timestamp NOT NULL,
 
-	CONSTRAINT date_pulled_unique_for_transaction unique(user_name,date_pulled)
+	CONSTRAINT day_user unique(user_name,day_of_transactions)
 );
