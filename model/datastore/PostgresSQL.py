@@ -27,7 +27,7 @@ class PostgresSQL():
 								port=PostgresSQL.__DBPORT)
 			return conn
 		except:
-			print sys.exc_info()[1]
+			raise
 			return "Error"
 
 	def read(self, query, vals):
