@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{%block content%}
+	<div class='col-md-12'>
+		<div class='col-md-4'></div>
+		<center>
+			<div class='col-md-4' id=''>
+				<div>
+					<h2>
+						{%block errors%}{%endblock%}
+					</h2>
+				</div>
+				{%block form%}
+				{%endblock%}
+			</div>
+		</center>
+		<div class='col-md-4'></div>
+	</div>
+{%endblock%}
+

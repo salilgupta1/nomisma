@@ -1,9 +1,10 @@
-<!DOCTYPE>
-<html>
-	<head>
-	</head>
-	<body>
-		<a href="{{ url_for('logout') }}">Logout</a>
+{% extends "base.html" %}
+
+{% block content %}
+	<div class='col-md-12'>
 		<h3>Still building it! but welcome {{session.username}}</h3>
-	</body>
-</html>
+	</div>
+{% endblock %}
+{%block scripts%}
+	<script src="http://code.highcharts.com/highcharts.js"></script>
+{%endblock%}
