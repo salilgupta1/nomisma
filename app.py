@@ -28,17 +28,15 @@ def setup():
 
 		pullError = analytics.pullData(True)
 		if pullError == True:
-			pprint.pprint(analytics.rawData)
 			refineError= analytics.refineData()
 			if refineError == True:
-				pprint.pprint(analytics.cleanData)
 				insertError = analytics.insertData()
 				if insertError == True:
 					print "Complete!"
 
 	else:
 		return redirect(url_for('index'))
-	return render_template('setup.html')
+	return redirect(url_for('dashboard'))
 
 # user pages
 @app.route('/auth/registerUser', methods=['GET','POST'])
@@ -54,7 +52,8 @@ def registerUser():
 			session.pop('username', None)
 			session['logged_in'] = True
 			session['username'] = username
-			# go to the users dashboard
+
+			# do the first data retrieval from venmo
 			return redirect(url_for('setup'))
 		else:
 			return result
@@ -62,7 +61,7 @@ def registerUser():
 		# authenticate a user with venmo
 		v_username = userAuth.authorizeWithVenmo(request.args.get('code'))
 		
-		return render_template('registerUser.html',username = v_username)
+		return render_template('auth/registerUser.html',username = v_username)
 
 @app.route('/login' , methods=['GET','POST'])
 def login():
@@ -76,10 +75,11 @@ def login():
 		if is_authenticated == True:
 			session['logged_in'] = True
 			session['username'] = username
+			# go to user dashboard
 			return redirect(url_for('dashboard'))
 		else:
 			error = is_authenticated
-	return render_template('login.html', error=error)
+	return render_template('auth/login.html', error=error)
 
 @app.route('/logout')
 def logout():
