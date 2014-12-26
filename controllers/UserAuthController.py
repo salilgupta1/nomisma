@@ -47,7 +47,6 @@ class UserAuthController():
 				v_refresh_token = response_dict['refresh_token']
 				v_auth_date = time.strftime("%Y-%m-%d %H:%M:%S")
 				self.regData = (v_id,v_user_name,v_email,v_display_name,v_access_token,v_refresh_token,v_auth_date)
-
 				return v_user_name
 		except:
 			raise
@@ -59,11 +58,9 @@ class UserAuthController():
 			password += salt
 			password = hashlib.sha1(password).hexdigest()
 			self.regData +=(password,salt)
+			
 			result = self.user.createUser(self.regData)
 
-			# error handling needed
-			
-			self.regData.clear()
 			return result
 		except:
 			raise
