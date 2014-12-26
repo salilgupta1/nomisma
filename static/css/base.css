@@ -1,0 +1,35 @@
+html,body{
+	width:100%;
+	height:100%;
+	background-color: #eeeeee;
+}
+
+#header{
+	padding:2% 1% 2% 1%;
+	background-color: #e59400;
+	margin-bottom:5%;
+}
+
+#header button{
+	float:right;
+}
+#content{
+	margin: 2%;
+}
+
+.button-xlarge a{
+    font-size: 125%;
+}
+
+
+#logo>h1{
+	margin:0%;
+}
+a{
+	color:black;
+}
+a:hover{
+	color:black;
+	text-decoration: none;
+}
+
