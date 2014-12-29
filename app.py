@@ -1,61 +1,56 @@
-from flask import Flask, session, redirect, url_for, render_template, request
+from flask import Flask, session, redirect, url_for, render_template, request, jsonify
 from controllers.UserAuthController import UserAuthController
 from controllers.AnalyticsController import AnalyticsController
-import os, pprint
+import os, string, random, json
 
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTING'])
-
 userAuth = UserAuthController()
 analytics = AnalyticsController()
+
 # home page
 @app.route('/')
 def index():
 	if 'logged_in' in session and session['logged_in'] == True:
-		return redirect(url_for('dashboard'))
+		return redirect(url_for('dashboard',isFirstTime=False))
 	else:
 		return render_template('index.html',client_id=os.environ['client_id'])
 
 #### Analytics pages
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
-	return render_template('dashboard.html')
-
-@app.route('/setup', methods=['GET'])
-def setup():
 	if 'logged_in' in session and session['logged_in'] == True:
-		analytics.setUsername(session['username'])
-
-		pullError = analytics.pullData(True)
-		if pullError == True:
-			refineError= analytics.refineData()
-			if refineError == True:
-				insertError = analytics.insertData()
-				if insertError == True:
-					print "Complete!"
-
+		return render_template('dashboard.html')
 	else:
 		return redirect(url_for('index'))
-	return redirect(url_for('dashboard'))
 
-# user pages
+@app.route('/retrieveAnalytics',methods=['GET'])
+def retrieveAnalytics():
+	csrf_token = session.pop('csrf_token', None)
+
+	if csrf_token != request.args.get('csrf_token'):
+		return redirect(url_for('logout'))
+	
+	analytics.setUsername(session['username'])
+	data = analytics.retrieveAnalytics()
+	return jsonify(data)
+
+#### User pages
 @app.route('/auth/registerUser', methods=['GET','POST'])
 def registerUser():
 	if request.method == 'POST':
+		# complete user reg
 		username = request.form['username']
 		password = request.form['password']
 		result = userAuth.completeRegistration(username,password)
-
 		if result == True:
-			# clear out sessions
-			session.pop('logged_in', None)
-			session.pop('username', None)
+			# add the user data to session
 			session['logged_in'] = True
 			session['username'] = username
 
-			# do the first data retrieval from venmo
-			return redirect(url_for('setup'))
+			return redirect(url_for('dashboard'))
 		else:
+			# fix error handling
 			return result
 	else:
 		# authenticate a user with venmo
@@ -74,7 +69,7 @@ def login():
 
 		if is_authenticated == True:
 			session['logged_in'] = True
-			session['username'] = username
+			session['username'] = username      
 			# go to user dashboard
 			return redirect(url_for('dashboard'))
 		else:
@@ -85,9 +80,18 @@ def login():
 def logout():
 	session.pop('logged_in', None)
 	session.pop('username', None)
+	session.pop('__csrf_token',None)
 
 	return redirect(url_for('index'))
 
+def generate_csrf_token():
+	if 'csrf_token' not in session or session['csrf_token'] is None:
+		session['csrf_token'] = ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
+	return session['csrf_token']
+
 
 if __name__ == '__main__':
-    app.run()
+	# give jinja ability to store and create a csrf token
+	app.jinja_env.globals['csrf_token'] = generate_csrf_token
+
+	app.run()
