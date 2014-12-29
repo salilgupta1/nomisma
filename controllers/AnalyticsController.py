@@ -14,10 +14,23 @@ class AnalyticsController:
 	def setUsername(self, username):
 		self.username = username
 
+	def updateVenmoAnalytics(self):
+		pullError = self.pullData()
+		if pullError == True:
+			refineError= self.refineData()
+			if refineError == True:
+				insertError = self.insertData()
+				if insertError == True:
+					return True
+
+		# some sort of error so send to index for now ..
+		return "Error"
+
 	# pull data from venmo servers
-	def pullData(self,firstTime = False):
+	def pullData(self):
 		try:
 			v_access_token = self.returnOrRefreshTokens()
+			print v_access_token
 			if v_access_token is not "Error":
 
 				url = "https://api.venmo.com/v1/payments"
@@ -32,14 +45,11 @@ class AnalyticsController:
 					"limit":10000,
 					"access_token":v_access_token
 				}
-				if not firstTime:
-					# this isn't the first time a user has pulled data so we get the last pull date from 
-					# db
-					
-					lastPullDate = self.TransactionAnalyticsManager.getLastPullDate(self.username)
-					if len(lastPullDate):
-						# not the first time so we need an after
-						data['after'] = lastPullDate[0][0]
+				
+				lastPullDate = self.TransactionAnalyticsManager.getLastPullDate(self.username)
+				if len(lastPullDate):
+					# not the first time we are getting data so we need an after
+					data['after'] = lastPullDate[0][0]
 
 				# get data from venmo server
 				response = requests.get(url, params=data)
@@ -68,14 +78,15 @@ class AnalyticsController:
 
 		try:
 			result = self.UserManager.getUserTokens(self.username)
+			print result
 			if result !='Error' and len(result):
 
-				# if no error and we get something back from db
 				authDate = result[0][2]
 				authEpoch = time.mktime(authDate.timetuple())
 				currEpoch = time.time()
+				print authEpoch
 				if currEpoch - authEpoch > 0:
-
+					print "hi"
 					# no need to refresh just return access_token
 					return result[0][0]
 				else:	
@@ -103,7 +114,6 @@ class AnalyticsController:
 
 						# if no error with db update return access_token
 						return v_access_token
-			return True
 		except:
 			raise
 			return "Error"
@@ -170,7 +180,8 @@ class AnalyticsController:
 		except:
 			raise
 			return "Error"
-		
+	
 	# send data for displaying
-	def displayData(self,):
-		pass
+	def retrieveAnalytics(self,):
+		result = self.TransactionAnalyticsManager.retrieveAnalytics(self.username)
+		return result
