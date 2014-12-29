@@ -6,8 +6,7 @@ class Config(object):
     SECRET_KEY = os.environ['SECRET_KEY']
 
 class ProductionConfig(Config):
-    DEBUG = True
-    DEVELOPMENT = True   
+    DEBUG = False
 
 class DevelopmentConfig(Config):
     DEVELOPMENT = True

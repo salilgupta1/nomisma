@@ -4,7 +4,9 @@ from controllers.AnalyticsController import AnalyticsController
 import os, string, random, json
 
 app = Flask(__name__)
+
 app.config.from_object(os.environ['APP_SETTING'])
+
 userAuth = UserAuthController()
 analytics = AnalyticsController()
 
@@ -89,9 +91,9 @@ def generate_csrf_token():
 		session['csrf_token'] = ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(32)])
 	return session['csrf_token']
 
-
+app.jinja_env.globals['csrf_token'] = generate_csrf_token
 if __name__ == '__main__':
 	# give jinja ability to store and create a csrf token
-	app.jinja_env.globals['csrf_token'] = generate_csrf_token
+	#app.jinja_env.globals['csrf_token'] = generate_csrf_token
 
 	app.run()
