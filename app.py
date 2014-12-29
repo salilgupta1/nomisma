@@ -14,6 +14,8 @@ analytics = AnalyticsController()
 @app.route('/')
 def index():
 	if 'logged_in' in session and session['logged_in'] == True:
+		analytics.setUsername(session['username'])
+		analytics.updateVenmoAnalytics()
 		return redirect(url_for('dashboard'))
 	else:
 		return render_template('index.html',client_id=os.environ['client_id'])
@@ -33,7 +35,6 @@ def retrieveAnalytics():
 	if csrf_token != request.args.get('csrf_token'):
 		return redirect(url_for('logout'))
 	
-	analytics.setUsername(session['username'])
 	data = analytics.retrieveAnalytics()
 	return jsonify(data)
 
