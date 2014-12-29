@@ -14,8 +14,6 @@ analytics = AnalyticsController()
 @app.route('/')
 def index():
 	if 'logged_in' in session and session['logged_in'] == True:
-		analytics.setUsername(session['username'])
-		analytics.updateVenmoAnalytics()
 		return redirect(url_for('dashboard'))
 	else:
 		return render_template('index.html',client_id=os.environ['client_id'])
@@ -24,6 +22,9 @@ def index():
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
 	if 'logged_in' in session and session['logged_in'] == True:
+		# fix later to occur less often
+		analytics.setUsername(session['username'])
+		analytics.updateVenmoAnalytics()
 		return render_template('dashboard.html')
 	else:
 		return redirect(url_for('index'))
