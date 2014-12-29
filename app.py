@@ -12,7 +12,7 @@ analytics = AnalyticsController()
 @app.route('/')
 def index():
 	if 'logged_in' in session and session['logged_in'] == True:
-		return redirect(url_for('dashboard',isFirstTime=False))
+		return redirect(url_for('dashboard'))
 	else:
 		return render_template('index.html',client_id=os.environ['client_id'])
 
