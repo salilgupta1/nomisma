@@ -30,6 +30,12 @@ class PostgresSQL():
 			raise
 			return "Error"
 
+	def makeDataDict(self, results, columns):
+		obj = {"results":[]}	
+		for row in results:
+			obj['results'].append(dict(zip(columns, row)))
+		return obj
+
 	def read(self, query, vals):
 		try:
 			conn = self.makeConn()
