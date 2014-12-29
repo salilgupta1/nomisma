@@ -26,9 +26,21 @@ class TransactionAnalyticsManager:
 		return result 
 
 	def getLastPullDate(self,user_name):
-		query = """SELECT date_pulled from "transaction_analytics" where user_name=%s order by date_pulled desc limit 1;""";
+		query = """SELECT date_pulled from "transaction_analytics" where user_name=%s order by date_pulled desc limit 1;"""
 		vals = (user_name,)
 		
 		result = self.PostgresSQL.read(query,vals)
 		return result
+
+	def retrieveAnalytics(self, user_name):
+		query = """SELECT Extract(YEAR FROM day_of_transactions) as year,\
+				 	Extract(MONTH FROM day_of_transactions) as month,\
+					SUM(outflow) as outflow, SUM(inflow) as inflow, SUM(num_trans_outflow) as qOutflow,\
+					SUM(num_trans_inflow) as qInflow from transaction_analytics where user_name=%s group by year, month order by year, month;""" 
+
+		vals =(user_name,)
+
+		result = self.PostgresSQL.read(query, vals)
+		return self.PostgresSQL.makeDataDict(result, ('Year','Month','outflow','inflow','qOutflow','qInflow'))
+
 
