@@ -1,14 +1,12 @@
-from model.database.table_managers.TransactionAnalyticsManager import TransactionAnalyticsManager
+from model.database.table_managers.AnalyticsManager import AnalyticsManager
 from model.database.table_managers.UserManager import UserManager
 import os, requests, time, datetime, sys
 
 class AnalyticsController:
 	def __init__(self):
-		self.TransactionAnalyticsManager = TransactionAnalyticsManager()
+		self.AnalyticsManager = AnalyticsManager()
 		self.username = None
 		self.UserManager = UserManager()
-		#self.rawData = {}
-		#`self.cleanData = {}
 		self.beforeDate = None
 
 	def setUsername(self, username):
@@ -40,8 +38,8 @@ class AnalyticsController:
 					"access_token":v_access_token
 				}
 				
-				lastPullDate = self.TransactionAnalyticsManager.getLastPullDate(self.username)
-				if len(lastPullDate):
+				lastPullDate = self.UserManager.getLastPullDate(self.username)
+				if len(lastPullDate) and lastPullDate[0][0] != None:
 					# not the first time we are getting data so we need an after
 					data['after'] = lastPullDate[0][0]
 
@@ -49,11 +47,13 @@ class AnalyticsController:
 				response = requests.get(url, params=data)
 				response_dict = response.json()
 				if 'error' in response_dict:	
-					raise "VenmoPullDataError: %s" % (response_dict['error'],)
+					exceptionStr = "VenmoPullDataError: %s" % (response_dict['error'],)
+					raise Exception(exceptionStr)
 
-				# data plus before date to save in db later
+				# update before date in db
+				# return venmo data
 				else:
-					self.beforeDate = before
+					self.UserManager.updateLastPullDate(before, self.username)
 					return response_dict['data']
 		except:
 			raise
@@ -119,7 +119,6 @@ class AnalyticsController:
 												'largest_payment':0.0,
 												'largest_charge':0.0,
 												'ave_trans_size':0.0, # (inflow + outflow)/(num inflow + num outflow)
-												'date_pulled':self.beforeDate,
 												'day_of_transactions':dayOfTrans
 												}
 
@@ -151,11 +150,11 @@ class AnalyticsController:
 	def insertData(self, cleanData):
 		try:
 			data_tuple = tuple(cleanData.values())
-			self.TransactionAnalyticsManager.insertTransactions(data_tuple)
+			self.AnalyticsManager.insertAnalytics(data_tuple)
 		except:
 			raise
 	
 	# send data to the view
 	def retrieveAnalytics(self,):
-		result = self.TransactionAnalyticsManager.retrieveAnalytics(self.username)
+		result = self.AnalyticsManager.retrieveAnalytics(self.username)
 		return result

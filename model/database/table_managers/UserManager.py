@@ -11,6 +11,7 @@ class UserManager:
 	# __v_auth_date			= "v_auth_date"
 	# __password 			= "password"
 	# __password_salt		= "password_salt"
+	# __last_pull_date		= "last_pull_date"
 
 	def __init__(self):
 		self.PostgresSQL = PostgresSQL()
@@ -44,3 +45,15 @@ class UserManager:
 		vals = (username,)
 
 		return self.PostgresSQL.read(query,vals)
+
+	def getLastPullDate(self,username):
+		query = """SELECT last_pull_date from "user" where v_username=%s;"""
+		vals = (username,)
+		
+		return self.PostgresSQL.read(query,vals)
+
+	def updateLastPullDate(self, new_pull_date, username):
+		query = """UPDATE "user" SET last_pull_date=%s where v_username=%s;"""
+		vals = (new_pull_date,username)
+
+		self.PostgresSQL.update(query,vals)

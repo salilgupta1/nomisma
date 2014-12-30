@@ -4,12 +4,12 @@ import os, requests, hashlib, time
 class UserAuthController():
 
 	def __init__(self):
-		self.user = UserManager()
+		self.UserManager = UserManager()
 		self.regData = None
 
 	def authenticateUser(self,username, password):
 
-		result = self.user.getUserAuth(username)
+		result = self.UserManager.getUserAuth(username)
 		if len(result) > 0:
 			db_password = result[0][0]
 			db_salt = result[0][1]
@@ -36,7 +36,8 @@ class UserAuthController():
 
 			if 'error' in response_dict:
 				# raise a venmo exception
-				raise "VenmoAuthenticationError: %s" % (response_dict['error'],)
+				e_str= "VenmoAuthenticationError: %s" % (response_dict['error'],)
+				raise Exception(e_str)
 			else:
 				v_id = response_dict['user']['id']
 				v_user_name = response_dict['user']['username']
@@ -59,6 +60,6 @@ class UserAuthController():
 			self.regData +=(password,salt)
 			
 			# create the user
-			self.user.createUser(self.regData)
+			self.UserManager.createUser(self.regData)
 		except:
 			raise
