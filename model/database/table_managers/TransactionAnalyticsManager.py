@@ -1,4 +1,4 @@
-# Wrapper class for User table
+# Wrapper class for Transactions table table
 from model.datastore.PostgresSQL import PostgresSQL
 
 class TransactionAnalyticsManager:
@@ -22,15 +22,13 @@ class TransactionAnalyticsManager:
 		%(outflow)s, %(largest_payment)s, %(largest_charge)s, %(ave_trans_size)s,\
 		%(day_of_transactions)s, %(date_pulled)s);"""
 
-		result = self.PostgresSQL.insertMany(query, vals)
-		return result 
+		self.PostgresSQL.insertMany(query, vals) 
 
 	def getLastPullDate(self,user_name):
 		query = """SELECT date_pulled from "transaction_analytics" where user_name=%s order by date_pulled desc limit 1;"""
 		vals = (user_name,)
 		
-		result = self.PostgresSQL.read(query,vals)
-		return result
+		return self.PostgresSQL.read(query,vals)
 
 	def retrieveAnalytics(self, user_name):
 		query = """SELECT Extract(YEAR FROM day_of_transactions) as year,\
@@ -42,5 +40,3 @@ class TransactionAnalyticsManager:
 
 		result = self.PostgresSQL.read(query, vals)
 		return self.PostgresSQL.makeDataDict(result, ('Year','Month','outflow','inflow','qOutflow','qInflow'))
-
-

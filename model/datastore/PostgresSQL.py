@@ -28,13 +28,15 @@ class PostgresSQL():
 			return conn
 		except:
 			raise
-			return "Error"
 
 	def makeDataDict(self, results, columns):
-		obj = {"results":[]}	
-		for row in results:
-			obj['results'].append(dict(zip(columns, row)))
-		return obj
+		try:
+			obj = {"results":[]}	
+			for row in results:
+				obj['results'].append(dict(zip(columns, row)))
+			return obj
+		except:
+			raise
 
 	def read(self, query, vals):
 		try:
@@ -46,7 +48,6 @@ class PostgresSQL():
 			return rows
 		except:
 			raise
-			return "Error"
 
 	def insert(self, query, vals):
 		try:
@@ -55,10 +56,8 @@ class PostgresSQL():
 			curr.execute(query,vals)
 			conn.commit()
 			conn.close()
-			return True
 		except:
 			raise
-			return "Error"
 
 	def insertMany(self, query, vals):
 		try:
@@ -67,10 +66,8 @@ class PostgresSQL():
 			curr.executemany(query, vals)
 			conn.commit()
 			conn.close()
-			return True
 		except:
 			raise
-			return "Error"
 
 	def update(self, query, vals):
 		try:
@@ -78,8 +75,6 @@ class PostgresSQL():
 			curr = conn.cursor()
 			curr.execute(query,vals)
 			conn.commit()
-			conn.close()	
-			return True
+			conn.close()
 		except:
 			raise
-			return "Error"

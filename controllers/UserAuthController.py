@@ -8,6 +8,7 @@ class UserAuthController():
 		self.regData = None
 
 	def authenticateUser(self,username, password):
+
 		result = self.user.getUserAuth(username)
 		if len(result) > 0:
 			db_password = result[0][0]
@@ -16,13 +17,11 @@ class UserAuthController():
 			hashed = hashlib.sha1(password).hexdigest()
 			if (hashed == db_password):
 				return True
-			else:
-				return "Password is invalid!"
-		else:
-			return "Username is invalid!"
+		return "Oops! Invalid Username or Password...."
 
 	def authorizeWithVenmo(self,code):
 		try:
+
 			data = {
 				"client_id":os.environ['client_id'],
 				"client_secret":os.environ['client_secret'], 
@@ -36,8 +35,8 @@ class UserAuthController():
 			response_dict = response.json()
 
 			if 'error' in response_dict:
-				print response_dict['error']
-				return False
+				# raise a venmo exception
+				raise "VenmoAuthenticationError: %s" % (response_dict['error'],)
 			else:
 				v_id = response_dict['user']['id']
 				v_user_name = response_dict['user']['username']
@@ -50,18 +49,16 @@ class UserAuthController():
 				return v_user_name
 		except:
 			raise
-			return "Error"
 
 	def completeRegistration(self,username,password):
 		try:
+			# create salt and encrypt password
 			salt = os.urandom(16).encode('base-64')
 			password += salt
 			password = hashlib.sha1(password).hexdigest()
 			self.regData +=(password,salt)
 			
-			result = self.user.createUser(self.regData)
-
-			return result
+			# create the user
+			self.user.createUser(self.regData)
 		except:
 			raise
-			return "Error"
