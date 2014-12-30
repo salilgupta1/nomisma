@@ -21,7 +21,6 @@ class UserAuthController():
 
 	def authorizeWithVenmo(self,code):
 		try:
-
 			data = {
 				"client_id":os.environ['client_id'],
 				"client_secret":os.environ['client_secret'], 
@@ -36,7 +35,7 @@ class UserAuthController():
 
 			if 'error' in response_dict:
 				# raise a venmo exception
-				e_str= "VenmoAuthenticationError: %s" % (response_dict['error'],)
+				e_str = "VenmoAuthenticationError: %s" % (response_dict['error']['message'],)
 				raise Exception(e_str)
 			else:
 				v_id = response_dict['user']['id']

@@ -12,8 +12,13 @@ class AnalyticsController:
 	def setUsername(self, username):
 		self.username = username
 
+	def getUsername(self):
+		return self.username
+
 	# update analytics for a user
 	def updateAnalytics(self):
+		if self.username == None:
+			raise Exception('Missing Username')
 		rawData = self.pullData()
 		cleanData = self.refineData(rawData)
 		self.insertData(cleanData)
@@ -22,7 +27,6 @@ class AnalyticsController:
 	def pullData(self):
 		try:
 			v_access_token = self.returnOrRefreshTokens()
-
 			if v_access_token:
 
 				url = "https://api.venmo.com/v1/payments"
@@ -47,14 +51,16 @@ class AnalyticsController:
 				response = requests.get(url, params=data)
 				response_dict = response.json()
 				if 'error' in response_dict:	
-					exceptionStr = "VenmoPullDataError: %s" % (response_dict['error'],)
-					raise Exception(exceptionStr)
+					e_str = "VenmoPullDataError: %s" % (response_dict['error']['message'],)
+					raise Exception(e_str)
 
 				# update before date in db
 				# return venmo data
 				else:
 					self.UserManager.updateLastPullDate(before, self.username)
 					return response_dict['data']
+			else:
+				raise Exception('Venmo Access Tokens not found')
 		except:
 			raise
 
@@ -84,7 +90,10 @@ class AnalyticsController:
 					# use a post for security purposes 
 					response = requests.post(url,data)
 					response_dict = response.json()
-
+					if 'error' in response_dict:
+						e_str = "VenmoAuthenticationError: %s" % (response_dict['error']['message'],)
+						raise Exception(e_str)
+						
 					v_access_token = response_dict['access_token']
 					v_refresh_token = response_dict['refresh_token']
 					v_auth_date = time.strftime("%Y-%m-%d %H:%M:%S")

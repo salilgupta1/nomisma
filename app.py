@@ -22,6 +22,8 @@ def index():
 @app.route('/dashboard', methods=['GET'])
 def dashboard():
 	if 'logged_in' in session and session['logged_in'] == True:
+		if analytics.getUsername() == None:
+			analytics.setUsername(session['username']) 
 		analytics.updateAnalytics()
 		return render_template('dashboard.html')
 	else:
@@ -49,7 +51,6 @@ def registerUser():
 		# add the user data to session
 		session['logged_in'] = True
 		session['username'] = username
-		analytics.setUsername(session['username'])
 		return redirect(url_for('dashboard'))
 	else:
 		# authenticate a user with venmo
@@ -69,7 +70,7 @@ def login():
 		if is_authenticated == True:
 			session['logged_in'] = True
 			session['username'] = username
-			analytics.setUsername(session['username'])      
+     
 			# go to user dashboard
 			return redirect(url_for('dashboard'))
 		else:
