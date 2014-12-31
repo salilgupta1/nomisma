@@ -2,38 +2,38 @@ var app = angular.module('Analytics',[]);
 
 app.controller('DashboardController',function($scope, $http){
 	$scope.csrf_token = "";
-	$scope.data = [];
-	$scope.error = false;
+    $scope.standAlone = [];
+    $scope.standAloneError = false;
+	$scope.chartError = false;
 	var monthNames = [ "Jan", "Feb", "Mar", "April", "May", "Jun",
     "Jul", "Aug", "Sept", "Oct", "Nov", "Dec" ];
 
-	function retrieveAnalytics(){
+	function retrieveCharts(){
 		$http({
 			method:'GET',
-			url:'/retrieveAnalytics',
+			url:'/retrieveCharts',
 			headers:{
 				"Content-Type":'application/json'
 			},
 			params:{'csrf_token':$scope.csrf_token}
-		}).success(successCallBack).error(errorCallBack);
+		}).success(successCharts).error(errorCharts);
 	}
 
-    function successCallBack(response){
-    	$scope.data = response;
-    	$scope.error = false;
+    function successCharts(response){
+    	$scope.chartError = false;
     	var x_categories = [], inflow = [], outflow = [], qInflow=[],qOutflow=[];
     	var year, month, inf, outf;
 
     	for(var i=0;i< response['results'].length; i++){
     		year = response['results'][i]['Year'] % 2000;
     		month = monthNames[response['results'][i]['Month'] - 1];
-    		inf = response['results'][i]['inflow'].substring(1).replace(',','')
-    		outf = response['results'][i]['outflow'].substring(1).replace(',','')
+    		inf = response['results'][i]['inflow']
+    		outf = response['results'][i]['outflow']
 
     		x_categories.push(month+year);	
-    		inflow.push(parseFloat(inf));
+    		inflow.push(inf);
     		qInflow.push(response['results'][i]['qInflow']);
-    		outflow.push(parseFloat(outf));
+    		outflow.push(outf);
     		qOutflow.push(response['results'][i]['qOutflow']);
     	}
 
@@ -112,13 +112,34 @@ app.controller('DashboardController',function($scope, $http){
 
     }
 
-    function errorCallBack(response){
-    	$scope.error = true;
-    	$scope.data = [];
+    function errorCharts(response){
+    	$scope.chartError = true;
     	console.error(response);
     }
 
-    angular.element(document).ready(function () {
-        retrieveAnalytics();
+    function retrieveStandAlones(){
+        $http({
+            method:'GET',
+            url:'/retrieveStandAlones',
+            headers:{
+                "Content-Type":'application/json'
+            },
+            params:{'csrf_token':$scope.csrf_token}
+        }).success(successStandAlones).error(errorStandAlones);
+    }
+
+    function successStandAlones(response){
+        $scope.standAloneError = false;
+        $scope.standAlone = response['results'][0];
+    }
+
+    function errorStandAlones(response){
+        $scope.standAloneError = true;
+        console.log(response);
+    }
+
+    angular.element(document).ready(function(){
+        retrieveCharts();
+        retrieveStandAlones();
     });
 });

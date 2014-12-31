@@ -2,23 +2,42 @@
 
 {% block content %}
 	<div class='col-md-12' ng-app='Analytics' ng-init="csrf_token = '{{csrf_token()}}'" ng-controller='DashboardController'>
-		<div class='col-md-2'></div>
+		
 		<center>
-			<div ng-show="error" class='col-md-8'>
+			<div ng-show="standAloneError" class='col-md-4'>
 				<h3>Error</h3>
 			</div>
 
-			<div ng-show="!error" class='col-md-8'>
-				<div class='row' id='chart1'>
+			<div ng-show="!standAloneError" class='col-md-4'>
+				<div class='row'>
+					<h2> Average Daily Inflow to-date</h2>
+					$ <span ng-bind='standAlone.aveInflow'></span>
+				</div>
+				<div class='row'>
+					<h2> Average Daily Outflow to-date</h2>
+					$ <span ng-bind='standAlone.aveOutflow'></span>
+				</div>
+				<div class='row'>
+					<h2> Net</h2>
+					$ <span ng-bind='standAlone.net'></span>
+				</div>
+			</div>
+		</center>
+		<center>
+			<div ng-show="chartError" class='col-md-8'>
+				<h3>Error</h3>
+			</div>
+
+			<div ng-show="!chartError" class='col-md-8'>
+				<div class='row charts' id='chart1'>
 
 				</div>
 
-				<div class='row' id='chart2'>
+				<div class='row charts' id='chart2'>
 					
 				</div>
 			</div>
 		</center>
-		<div class='col-md-2'></div>
 	</div>
 {% endblock %}
 {%block scripts%}

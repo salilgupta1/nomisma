@@ -23,7 +23,7 @@ class AnalyticsManager:
 
 		self.PostgresSQL.insertMany(query, vals) 
 
-	def retrieveAnalytics(self, user_name):
+	def getCharts(self, user_name):
 		query = """SELECT Extract(YEAR FROM day_of_transactions) as year,\
 				 	Extract(MONTH FROM day_of_transactions) as month,\
 					SUM(outflow) as outflow, SUM(inflow) as inflow, SUM(num_trans_outflow) as qOutflow,\
@@ -33,3 +33,9 @@ class AnalyticsManager:
 
 		result = self.PostgresSQL.read(query, vals)
 		return self.PostgresSQL.makeDataDict(result, ('Year','Month','outflow','inflow','qOutflow','qInflow'))
+
+	def getStandAlones(self, user_name):
+		query = """SELECT ROUND(avg(inflow),2) as aveInflow, ROUND(avg(outflow),2) as aveOutflow, sum(inflow) - sum(outflow) as net  FROM analytics where user_name=%s;"""
+		vals =(user_name,)
+		result = self.PostgresSQL.read(query, vals)
+		return self.PostgresSQL.makeDataDict(result, ('aveInflow','aveOutflow','net'))

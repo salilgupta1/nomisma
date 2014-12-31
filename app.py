@@ -1,7 +1,7 @@
 from flask import Flask, session, redirect, url_for, render_template, request, jsonify
 from controllers.UserAuthController import UserAuthController
 from controllers.AnalyticsController import AnalyticsController
-import os, string, random, json
+import os, string, random, simplejson
 
 app = Flask(__name__)
 
@@ -29,14 +29,20 @@ def dashboard():
 	else:
 		return redirect(url_for('index'))
 
-@app.route('/retrieveAnalytics',methods=['GET'])
-def retrieveAnalytics():
-	csrf_token = session.pop('csrf_token', None)
-
-	if csrf_token != request.args.get('csrf_token'):
+@app.route('/retrieveCharts',methods=['GET'])
+def getCharts():
+	if session['csrf_token'] != request.args.get('csrf_token'):
 		return redirect(url_for('logout'))
 	
-	data = analytics.retrieveAnalytics()
+	data = analytics.getCharts()
+	return jsonify(data)
+
+@app.route('/retrieveStandAlones', methods=['GET'])
+def getStandAlones():
+	if session['csrf_token'] != request.args.get('csrf_token'):
+		return redirect(url_for('logout'))
+
+	data = analytics.getStandAlones()
 	return jsonify(data)
 
 #### User pages
