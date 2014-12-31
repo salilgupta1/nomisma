@@ -30,22 +30,24 @@ class AnalyticsController:
 			if v_access_token:
 
 				url = "https://api.venmo.com/v1/payments"
-
-				# store this in the database 
-				before = time.strftime("%Y-%m-%d")
-
-				todayPlusOne = datetime.date.today() + datetime.timedelta(days=1)
-				todayPlusOne = todayPlusOne.strftime("%Y-%m-%d")
 				data = {
-					"before":todayPlusOne,
 					"limit":10000,
 					"access_token":v_access_token
 				}
-				
+
+				# get tomorrow's date to save for lastpulldate
+				todayPlusOne = datetime.date.today() + datetime.timedelta(days=1)
+				todayPlusOne = todayPlusOne.strftime("%Y-%m-%d")
+
 				lastPullDate = self.UserManager.getLastPullDate(self.username)
 				if len(lastPullDate) and lastPullDate[0][0] != None:
+
 					# not the first time we are getting data so we need an after
 					data['after'] = lastPullDate[0][0]
+				else:
+
+					# first time we are getting data so we need a before
+					data["before"]=todayPlusOne
 
 				# get data from venmo server
 				response = requests.get(url, params=data)
@@ -54,10 +56,10 @@ class AnalyticsController:
 					e_str = "VenmoPullDataError: %s" % (response_dict['error']['message'],)
 					raise Exception(e_str)
 
-				# update before date in db
+				# update lastpulldate in db
 				# return venmo data
 				else:
-					self.UserManager.updateLastPullDate(before, self.username)
+					self.UserManager.updateLastPullDate(todayPlusOne, self.username)
 					return response_dict['data']
 			else:
 				raise Exception('Venmo Access Tokens not found')
@@ -164,6 +166,9 @@ class AnalyticsController:
 			raise
 	
 	# send data to the view
-	def retrieveAnalytics(self,):
-		result = self.AnalyticsManager.retrieveAnalytics(self.username)
+	def getCharts(self,):
+		result = self.AnalyticsManager.getCharts(self.username)
 		return result
+
+	def getStandAlones(self,):
+		return self.AnalyticsManager.getStandAlones(self.username)
