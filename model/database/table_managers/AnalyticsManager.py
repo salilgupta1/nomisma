@@ -35,7 +35,7 @@ class AnalyticsManager:
 		return self.PostgresSQL.makeDataDict(result, ('Year','Month','outflow','inflow','qOutflow','qInflow'))
 
 	def getStandAlones(self, user_name):
-		query = """SELECT ROUND(avg(inflow),2) as aveInflow, ROUND(avg(outflow),2) as aveOutflow, sum(inflow) - sum(outflow) as net  FROM analytics where user_name=%s;"""
+		query = """SELECT Round(avg(aveInflow),2), Round(avg(aveOutflow),2), Round(avg(net),2) FROM (SELECT avg(inflow) as aveInflow, avg(outflow) as aveOutflow, sum(inflow) - sum(outflow) as net  FROM analytics where user_name=%s group by Extract(Month from day_of_transactions)) as monthly;"""
 		vals =(user_name,)
 		result = self.PostgresSQL.read(query, vals)
-		return self.PostgresSQL.makeDataDict(result, ('aveInflow','aveOutflow','net'))
+		return self.PostgresSQL.makeDataDict(result, ('aveInflow','aveOutflow','aveNet'))
