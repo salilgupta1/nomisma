@@ -2,10 +2,12 @@ from flask import Flask, session, redirect, url_for, render_template, request, j
 from controllers.UserAuthController import UserAuthController
 from controllers.AnalyticsController import AnalyticsController
 import os, string, random, simplejson
+from datetime import timedelta
 
 app = Flask(__name__)
 
 app.config.from_object(os.environ['APP_SETTING'])
+app.permanent_session_lifetime = timedelta(seconds=86400)
 
 userAuth = UserAuthController()
 analytics = AnalyticsController()
@@ -74,6 +76,7 @@ def login():
 		is_authenticated = userAuth.authenticateUser(username,password)
 
 		if is_authenticated == True:
+			session.permanent = True
 			session['logged_in'] = True
 			session['username'] = username
      
